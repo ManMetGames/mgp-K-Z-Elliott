@@ -49,6 +49,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	/** Aim Input Action **/
+	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category="Input")
+	UInputAction* AimAction;
+
 public:
 
 	/** Constructor */
@@ -84,6 +88,13 @@ public:
 	/** Handles jump pressed inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
+
+	/** Handles aim toggling **/
+	UFUNCTION()
+	void StartAim();
+
+	UFUNCTION()
+	void StopAim();
 
 public:
 

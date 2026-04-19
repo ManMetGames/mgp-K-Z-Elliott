@@ -65,6 +65,10 @@ void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMGP_2526Character::Look);
+
+		// Aiming
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AMGP_2526Character::StartAim);
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AMGP_2526Character::StopAim);
 	}
 	else
 	{
@@ -130,4 +134,14 @@ void AMGP_2526Character::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void AMGP_2526Character::StartAim()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Started aiming"));
+}
+
+void AMGP_2526Character::StopAim()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Stopped aiming"));
 }
