@@ -139,9 +139,24 @@ void AMGP_2526Character::DoJumpEnd()
 void AMGP_2526Character::StartAim()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Started aiming"));
+	BaseArmLength = CameraBoom->TargetArmLength;
+	BaseSocketOffset = CameraBoom->SocketOffset;
+
+	GetMesh()->SetOwnerNoSee(true);
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	CameraBoom->TargetArmLength = 0.0f;
+	CameraBoom->SocketOffset = FVector(0.f, 0.f, 70.f);
 }
 
 void AMGP_2526Character::StopAim()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stopped aiming"));
+	CameraBoom->TargetArmLength = BaseArmLength;
+	CameraBoom->SocketOffset = BaseSocketOffset;
+
+	GetMesh()->SetOwnerNoSee(false);
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }

@@ -64,6 +64,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
+	float BaseArmLength;
+	FVector BaseSocketOffset;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
