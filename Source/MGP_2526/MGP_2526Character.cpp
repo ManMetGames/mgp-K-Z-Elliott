@@ -54,7 +54,7 @@ void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -69,6 +69,9 @@ void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		// Aiming
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AMGP_2526Character::StartAim);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AMGP_2526Character::StopAim);
+
+		//Possess
+		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Ongoing, this, &AMGP_2526Character::Possess);
 	}
 	else
 	{
@@ -159,4 +162,9 @@ void AMGP_2526Character::StopAim()
 	GetMesh()->SetOwnerNoSee(false);
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+void AMGP_2526Character::Possess()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Possessing"));
 }

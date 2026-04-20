@@ -53,6 +53,10 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category="Input")
 	UInputAction* AimAction;
 
+	/** Possess Input Action **/
+	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category = "Input")
+	UInputAction* PossessAction;
+
 public:
 
 	/** Constructor */
@@ -97,6 +101,11 @@ public:
 
 	UFUNCTION()
 	void StopAim();
+
+	/** Handles possession mechanic **/
+
+	UFUNCTION()
+	void Possess();
 
 public:
 
