@@ -172,6 +172,11 @@ void AMGP_2526Character::Possess()
 	PossessionProgress++;
 }
 
+bool AMGP_2526Character::HasTarget()
+{
+	return false;
+}
+
 void AMGP_2526Character::PossessSucceed()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));

@@ -33,6 +33,8 @@ class AMGP_2526Character : public ACharacter
 public: //My variables
 	UPROPERTY(EditAnywhere)
 	float PossessionProgress = 0;
+	UPROPERTY(EditAnywhere)
+	bool IsAiming = false;
 protected:
 
 	/** Jump Input Action */
@@ -112,6 +114,8 @@ public:
 	void PossessSucceed();
 	UFUNCTION()
 	void PossessFail();
+	UFUNCTION()
+	bool HasTarget();
 
 public:
 
