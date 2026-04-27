@@ -72,6 +72,8 @@ void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		//Possess
 		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Ongoing, this, &AMGP_2526Character::Possess);
+		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Completed, this, &AMGP_2526Character::PossessSucceed);
+		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Canceled, this, &AMGP_2526Character::PossessFail);
 	}
 	else
 	{
@@ -166,5 +168,18 @@ void AMGP_2526Character::StopAim()
 
 void AMGP_2526Character::Possess()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Possessing"));
+	UE_LOG(LogTemp, Warning, TEXT("Progress: %f"),PossessionProgress);
+	PossessionProgress++;
+}
+
+void AMGP_2526Character::PossessSucceed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
+	PossessionProgress = 0;
+}
+
+void AMGP_2526Character::PossessFail()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Canceled!"));
+	PossessionProgress = 0;
 }

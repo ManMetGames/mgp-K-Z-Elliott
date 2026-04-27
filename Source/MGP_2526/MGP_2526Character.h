@@ -30,7 +30,9 @@ class AMGP_2526Character : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+public: //My variables
+	UPROPERTY(EditAnywhere)
+	float PossessionProgress = 0;
 protected:
 
 	/** Jump Input Action */
@@ -106,6 +108,10 @@ public:
 
 	UFUNCTION()
 	void Possess();
+	UFUNCTION()
+	void PossessSucceed();
+	UFUNCTION()
+	void PossessFail();
 
 public:
 
