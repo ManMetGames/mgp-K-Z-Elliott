@@ -111,11 +111,11 @@ public:
 	UFUNCTION()
 	void Possess();
 	UFUNCTION()
-	void PossessSucceed();
+	void PossessResult();
+	//UFUNCTION()
+	//void PossessFail();
 	UFUNCTION()
-	void PossessFail();
-	UFUNCTION()
-	bool HasTarget();
+	bool HasTarget(APlayerController* Value);
 
 public:
 

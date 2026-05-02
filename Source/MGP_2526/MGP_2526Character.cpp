@@ -72,8 +72,8 @@ void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		//Possess
 		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Ongoing, this, &AMGP_2526Character::Possess);
-		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Completed, this, &AMGP_2526Character::PossessSucceed);
-		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Canceled, this, &AMGP_2526Character::PossessFail);
+		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Completed, this, &AMGP_2526Character::PossessResult);
+		EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Canceled, this, &AMGP_2526Character::PossessResult);
 	}
 	else
 	{
@@ -144,6 +144,7 @@ void AMGP_2526Character::DoJumpEnd()
 void AMGP_2526Character::StartAim()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Started aiming"));
+	IsAiming = true;
 	BaseArmLength = CameraBoom->TargetArmLength;
 	BaseSocketOffset = CameraBoom->SocketOffset;
 
@@ -158,6 +159,7 @@ void AMGP_2526Character::StartAim()
 void AMGP_2526Character::StopAim()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stopped aiming"));
+	IsAiming = false;
 	CameraBoom->TargetArmLength = BaseArmLength;
 	CameraBoom->SocketOffset = BaseSocketOffset;
 
@@ -172,19 +174,38 @@ void AMGP_2526Character::Possess()
 	PossessionProgress++;
 }
 
-bool AMGP_2526Character::HasTarget()
+bool AMGP_2526Character::HasTarget(APlayerController* PlayerController)
 {
-	return false;
+	if (!Controller) return false; //Denies line trace if Controller isn't passed
+
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	Controller->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	FVector Start = CameraLocation;
+	FVector End = Start + CameraRotation.Vector() * 10000.f;
+	FHitResult Hit;
+	FCollisionQueryParams FilterList;
+	FilterList.AddIgnoredActor(this); //Prevents player from being counted as a hit for the linetrace
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, FilterList);
+
+	return bHit;
 }
 
-void AMGP_2526Character::PossessSucceed()
+void AMGP_2526Character::PossessResult()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
+	if (PossessionProgress > 50)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Canceled!"));
+	}
 	PossessionProgress = 0;
 }
 
-void AMGP_2526Character::PossessFail()
+/*void AMGP_2526Character::PossessFail()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Canceled!"));
+	
 	PossessionProgress = 0;
-}
+}*/
