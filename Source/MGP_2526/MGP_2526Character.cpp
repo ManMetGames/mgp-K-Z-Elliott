@@ -188,12 +188,25 @@ bool AMGP_2526Character::HasTarget(APlayerController* PlayerController)
 	FilterList.AddIgnoredActor(this); //Prevents player from being counted as a hit for the linetrace
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, FilterList);
 
-	return bHit;
+	if (!bHit)
+		return false;
+
+	AActor* HitActor = Hit.GetActor();
+
+	UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
+
+	if (!HitActor->Tags.Contains("Possessable"))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No valid target!"))
+		return false;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Valid target!"))
+	return true;
 }
 
 void AMGP_2526Character::PossessResult()
 {
-	if (PossessionProgress > 50)
+	if (PossessionProgress > MaxPossession)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
 	}

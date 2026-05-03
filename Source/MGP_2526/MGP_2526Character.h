@@ -31,6 +31,8 @@ class AMGP_2526Character : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 public: //My variables
+	UPROPERTY()
+	float MaxPossession = 100; //Max progress in progress bar
 	UPROPERTY(EditAnywhere)
 	float PossessionProgress = 0;
 	UPROPERTY(EditAnywhere)

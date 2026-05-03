@@ -11,6 +11,8 @@ APossessableObject::APossessableObject()
 
 	ObjMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = ObjMesh;
+
+	Tags.Add("Possessable");
 }
 
 // Called when the game starts or when spawned

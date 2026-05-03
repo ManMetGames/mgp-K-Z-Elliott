@@ -15,7 +15,14 @@ ETriggerState UPossessEndTrigger::UpdateState_Implementation(const UEnhancedPlay
         {
             if (Char->IsAiming && Char->HasTarget(Controller)) //If a player has a target and is aiming (thus, is aiming at a target) keep allowing possession
             {
-                return ETriggerState::Ongoing;
+                if (Char->PossessionProgress > Char->MaxPossession) //Checks if target progress has been met
+                {
+                    return ETriggerState::None;
+                }
+                else
+                {
+                    return ETriggerState::Ongoing;
+                }
             }
         }
     }
