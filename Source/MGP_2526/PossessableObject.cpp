@@ -2,6 +2,9 @@
 
 
 #include "PossessableObject.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 APossessableObject::APossessableObject()
@@ -10,9 +13,21 @@ APossessableObject::APossessableObject()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ObjMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	RootComponent = ObjMesh;
+	ObjMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	SetRootComponent(ObjMesh);
 
 	Tags.Add("Possessable");
+
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 80.f));
+	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->bUsePawnControlRotation = false;
+
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom);
+	FollowCamera->bUsePawnControlRotation = false;
+
 }
 
 // Called when the game starts or when spawned

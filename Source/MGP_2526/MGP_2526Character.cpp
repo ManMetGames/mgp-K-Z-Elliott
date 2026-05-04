@@ -126,7 +126,24 @@ void AMGP_2526Character::DoLook(float Yaw, float Pitch)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(Yaw);
 		AddControllerPitchInput(Pitch);
+
+		AActor* ViewTarget = Controller->GetViewTarget();
+		if (!ViewTarget) return;
+
+		USpringArmComponent* Arm = ViewTarget->FindComponentByClass<USpringArmComponent>();
+
+		if (Arm)
+		{
+			FRotator Rot = Arm->GetRelativeRotation();
+
+			Rot.Yaw += Yaw;
+			Rot.Pitch = FMath::Clamp(Rot.Pitch + Pitch, -80.f, 80.f);
+
+			Arm->SetRelativeRotation(Rot);
+		}
+
 	}
+	
 }
 
 void AMGP_2526Character::DoJumpStart()
@@ -174,13 +191,13 @@ void AMGP_2526Character::Possess()
 	PossessionProgress++;
 }
 
-bool AMGP_2526Character::HasTarget(APlayerController* PlayerController)
+bool AMGP_2526Character::HasTarget(APlayerController* PController)
 {
-	if (!Controller) return false; //Denies line trace if Controller isn't passed
+	if (!PController) return false; //Denies line trace if Controller isn't passed
 
 	FVector CameraLocation;
 	FRotator CameraRotation;
-	Controller->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	PController->GetPlayerViewPoint(CameraLocation, CameraRotation);
 	FVector Start = CameraLocation;
 	FVector End = Start + CameraRotation.Vector() * 10000.f;
 	FHitResult Hit;
@@ -201,14 +218,17 @@ bool AMGP_2526Character::HasTarget(APlayerController* PlayerController)
 		return false;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Valid target!"))
+	CurrentTarget = HitActor; //Sets the possession target to the valid target
 	return true;
 }
 
 void AMGP_2526Character::PossessResult()
 {
+	APlayerController* PController = Cast<APlayerController>(Controller);
 	if (PossessionProgress > MaxPossession)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
+		PController->SetViewTargetWithBlend(CurrentTarget,0.2);
 	}
 	else
 	{
@@ -216,9 +236,3 @@ void AMGP_2526Character::PossessResult()
 	}
 	PossessionProgress = 0;
 }
-
-/*void AMGP_2526Character::PossessFail()
-{
-	
-	PossessionProgress = 0;
-}*/

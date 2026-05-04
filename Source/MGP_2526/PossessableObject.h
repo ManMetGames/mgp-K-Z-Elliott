@@ -6,23 +6,30 @@
 #include "GameFramework/Actor.h"
 #include "PossessableObject.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
+class UStaticMeshComponent;
+class USceneComponent;
+
 UCLASS()
 class MGP_2526_API APossessableObject : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+public:
 	// Sets default values for this actor's properties
 	APossessableObject();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* CameraBoom;
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* FollowCamera;
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* ObjMesh;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -37,6 +37,8 @@ public: //My variables
 	float PossessionProgress = 0;
 	UPROPERTY(EditAnywhere)
 	bool IsAiming = false;
+	UPROPERTY(EditAnywhere)
+	AActor* CurrentTarget;
 protected:
 
 	/** Jump Input Action */
@@ -114,8 +116,6 @@ public:
 	void Possess();
 	UFUNCTION()
 	void PossessResult();
-	//UFUNCTION()
-	//void PossessFail();
 	UFUNCTION()
 	bool HasTarget(APlayerController* Value);
 
