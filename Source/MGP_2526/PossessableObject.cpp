@@ -12,15 +12,17 @@ APossessableObject::APossessableObject()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ObjMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	ObjMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	ObjMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh")); //Creates mesh component to be assigned in editor
 	SetRootComponent(ObjMesh);
 
-	Tags.Add("Possessable");
+	Tags.Add("Possessable"); //Mark object as possessable
+
+	/*Camera Setup for possession*/
+	//Setup in a similar way to the one in Character for more seamless transition
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 80.f));
+	CameraBoom->SetRelativeLocation(FVector(50.f, 50.f, 80.f)); //Hard coded re-position, dynamic is out of scope for this mechanic showcase 
 	CameraBoom->TargetArmLength = 400.0f;
 	CameraBoom->bUsePawnControlRotation = false;
 

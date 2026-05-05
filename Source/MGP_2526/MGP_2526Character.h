@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
+class APossessableObject;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -37,8 +38,10 @@ public: //My variables
 	float PossessionProgress = 0;
 	UPROPERTY(EditAnywhere)
 	bool IsAiming = false;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	AActor* CurrentTarget;
+	UPROPERTY(EditAnywhere);
+	AActor* PossessedObj;
 protected:
 
 	/** Jump Input Action */

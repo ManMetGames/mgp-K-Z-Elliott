@@ -22,6 +22,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/*Variables for the possessable object*/
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere)
