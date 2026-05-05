@@ -78,6 +78,8 @@ protected:
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void BeginPlay() override;
+
 protected:
 	float BaseArmLength;
 	FVector BaseSocketOffset;
@@ -109,18 +111,18 @@ public:
 	/** Handles aim toggling **/
 	UFUNCTION()
 	void StartAim();
-
 	UFUNCTION()
 	void StopAim();
 
 	/** Handles possession mechanic **/
-
 	UFUNCTION()
 	void Possess();
 	UFUNCTION()
 	void PossessResult();
 	UFUNCTION()
 	bool HasTarget(APlayerController* Value);
+	UFUNCTION()
+	APossessableObject* ObjOrPlr(AActor* Value);
 
 public:
 

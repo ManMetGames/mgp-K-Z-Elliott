@@ -24,7 +24,7 @@ APossessableObject::APossessableObject()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetRelativeLocation(FVector(50.f, 50.f, 80.f)); //Hard coded re-position, dynamic is out of scope for this mechanic showcase 
 	CameraBoom->TargetArmLength = 400.0f;
-	CameraBoom->bUsePawnControlRotation = false;
+	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom);

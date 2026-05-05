@@ -15,9 +15,6 @@
 
 AMGP_2526Character::AMGP_2526Character()
 {
-	Tags.Add("Possessable"); //Mark player as possessable
-	PossessedObj = this;
-
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -52,6 +49,14 @@ AMGP_2526Character::AMGP_2526Character()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void AMGP_2526Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Tags.Add("Possessable"); //Mark player as possessable
+	PossessedObj = this;
 }
 
 void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -141,7 +146,15 @@ void AMGP_2526Character::DoLook(float Yaw, float Pitch)
 			FRotator Rot = Arm->GetRelativeRotation();
 
 			Rot.Yaw += Yaw;
-			Rot.Pitch = FMath::Clamp(Rot.Pitch + Pitch, -80.f, 80.f);
+
+			if (PossessedObj != this)
+			{
+				Rot.Pitch = FMath::Clamp(Rot.Pitch - Pitch, -80.f, 80.f);
+			}
+			else
+			{
+				Rot.Pitch = FMath::Clamp(Rot.Pitch + Pitch, -80.f, 80.f);
+			}
 
 			Arm->SetRelativeRotation(Rot);
 		}
@@ -165,15 +178,33 @@ void AMGP_2526Character::StartAim()
 	UE_LOG(LogTemp, Warning, TEXT("Started aiming"));
 	/*Goes first person*/
 	IsAiming = true;
-	BaseArmLength = CameraBoom->TargetArmLength;
-	BaseSocketOffset = CameraBoom->SocketOffset;
 
-	GetMesh()->SetOwnerNoSee(true);
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+	APossessableObject* CharObj = ObjOrPlr(PossessedObj); //Stores what object is being possessed
 
-	CameraBoom->TargetArmLength = 0.0f;
-	CameraBoom->SocketOffset = FVector(0.f, 0.f, 70.f);
+	USpringArmComponent* ActiveCam;
+
+	if(CharObj)
+	{
+		ActiveCam = CharObj->CameraBoom;
+		CharObj->ObjMesh->SetVisibility(false);
+		CharObj->ObjMesh->SetHiddenInGame(true);
+		BaseArmLength = ActiveCam->TargetArmLength;
+		BaseSocketOffset = ActiveCam->SocketOffset;
+		ActiveCam->SocketOffset = FVector(0.f, 0.f, -50.f);
+	}
+	else
+	{
+		ActiveCam = this->CameraBoom;
+		ActiveCam->SocketOffset = FVector(0.f, 0.f, 70.f);
+		BaseArmLength = ActiveCam->TargetArmLength;
+		BaseSocketOffset = ActiveCam->SocketOffset;
+		GetMesh()->SetVisibility(false);
+		GetMesh()->SetHiddenInGame(true);
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		bUseControllerRotationYaw = true;
+	}
+	
+	ActiveCam->TargetArmLength = 0.0f;
 }
 
 void AMGP_2526Character::StopAim()
@@ -181,10 +212,28 @@ void AMGP_2526Character::StopAim()
 	UE_LOG(LogTemp, Warning, TEXT("Stopped aiming"));
 	/*Return to third person*/
 	IsAiming = false;
-	CameraBoom->TargetArmLength = BaseArmLength;
-	CameraBoom->SocketOffset = BaseSocketOffset;
 
-	GetMesh()->SetOwnerNoSee(false);
+	APossessableObject* CharObj = ObjOrPlr(PossessedObj); //Stores what object is being possessed
+
+	USpringArmComponent* ActiveCam;
+
+	if (CharObj)
+	{
+		ActiveCam = CharObj->CameraBoom;
+		CharObj->ObjMesh->SetVisibility(true);
+		CharObj->ObjMesh->SetHiddenInGame(false);
+	}
+	else
+	{
+		ActiveCam = this->CameraBoom;
+		GetMesh()->SetVisibility(true);
+		GetMesh()->SetHiddenInGame(false);
+	}
+
+	ActiveCam->TargetArmLength = BaseArmLength;
+	ActiveCam->SocketOffset = BaseSocketOffset;
+
+	//GetMesh()->SetOwnerNoSee(false);
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
@@ -217,14 +266,26 @@ bool AMGP_2526Character::HasTarget(APlayerController* PController)
 
 	UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
 
+
 	if (!HitActor->Tags.Contains("Possessable")) //If the hit actor isn't possessable
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No valid target!"))
 		return false; //A valid target wasn't hit
 	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Valid target!"))
 	CurrentTarget = HitActor; //Sets the possession target to the valid target
 	return true;
+}
+
+APossessableObject* AMGP_2526Character::ObjOrPlr(AActor* Actor)
+{
+	APossessableObject* ObjActor = Cast<APossessableObject>(Actor); //Stores what object is being possessed
+	if (ObjActor)
+	{
+		return ObjActor;
+	}
+	return nullptr;
 }
 
 void AMGP_2526Character::PossessResult()
@@ -232,17 +293,11 @@ void AMGP_2526Character::PossessResult()
 	if (PossessionProgress > MaxPossession) //Checks if possession progress met the goal or if it was cancelled
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
-		PossessedObj = Cast<APossessableObject>(CurrentTarget); //Stores what object is being possessed
+		StopAim();
+		PossessedObj = ObjOrPlr(CurrentTarget); //Stores what object is being possessed
+		if (!PossessedObj) PossessedObj = this;
 		APlayerController* PController = Cast<APlayerController>(Controller);
-		if (PossessedObj)
-		{
-			PController->SetViewTargetWithBlend(PossessedObj, 0.2); //Transitions to the target's camera
-		}
-		else if(CurrentTarget == this)
-		{
-			PossessedObj = this;
-			PController->SetViewTargetWithBlend(this, 0.2); //Transitions to the player's camera
-		}
+		PController->SetViewTargetWithBlend(PossessedObj, 0.2);
 		CurrentTarget = nullptr; //Resets what is currently being targetted
 	}
 	else
