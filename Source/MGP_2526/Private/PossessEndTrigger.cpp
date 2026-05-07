@@ -17,11 +17,11 @@ ETriggerState UPossessEndTrigger::UpdateState_Implementation(const UEnhancedPlay
             {
                 if (Char->PossessionProgress > Char->MaxPossession) //Checks if target progress has been met
                 {
-                    return ETriggerState::None;
+                    return ETriggerState::None; //End possession when completed
                 }
                 else
                 {
-                    return ETriggerState::Ongoing;
+                    return ETriggerState::Ongoing; //Keep progressing possession if PossessionProgress isn't past max
                 }
             }
         }

@@ -10,7 +10,7 @@
 APossessableObject::APossessableObject()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	ObjMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh")); //Creates mesh component to be assigned in editor
 	SetRootComponent(ObjMesh);
@@ -19,11 +19,10 @@ APossessableObject::APossessableObject()
 
 	/*Camera Setup for possession*/
 	//Setup in a similar way to the one in Character for more seamless transition
-
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetRelativeLocation(FVector(50.f, 50.f, 80.f)); //Hard coded re-position, dynamic is out of scope for this mechanic showcase 
-	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->TargetArmLength = 400.0f; //Same TargetArmLength as player
 	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));

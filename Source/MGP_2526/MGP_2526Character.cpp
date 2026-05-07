@@ -143,13 +143,14 @@ void AMGP_2526Character::DoLook(float Yaw, float Pitch)
 
 		USpringArmComponent* Arm = ViewTarget->FindComponentByClass<USpringArmComponent>();
 
-		if (Arm)
+		if (Arm) //If the current ViewTarget has a SpringArm
 		{
-			FRotator Rot = Arm->GetRelativeRotation();
+			FRotator Rot = Arm->GetRelativeRotation(); //Get current rotation as Rot
 
-			Rot.Yaw += Yaw;
+			Rot.Yaw += Yaw; //Add the Yaw movement
 
-			if (PossessedObj != this)
+			/*Add the Pitch movement*/
+			if (PossessedObj != this) //If camera is on an object, - Pitch instead of + Pitch, necessary to prevent inversion of up/down
 			{
 				Rot.Pitch = FMath::Clamp(Rot.Pitch - Pitch, -80.f, 80.f);
 			}
@@ -158,7 +159,7 @@ void AMGP_2526Character::DoLook(float Yaw, float Pitch)
 				Rot.Pitch = FMath::Clamp(Rot.Pitch + Pitch, -80.f, 80.f);
 			}
 
-			Arm->SetRelativeRotation(Rot);
+			Arm->SetRelativeRotation(Rot); //Set to the newly calculated camera position based on controller input
 		}
 	}
 }
@@ -175,12 +176,13 @@ void AMGP_2526Character::DoJumpEnd()
 	StopJumping();
 }
 
+/*Function made to bypass the issue of ->Possess instantly snapping*/
 void AMGP_2526Character::Transition(AActor* OldTarget)
 {
-	APlayerController* PController = Cast<APlayerController>(Controller);
+	APlayerController* PController = Cast<APlayerController>(Controller); //Get current controller
 
-	PController->SetViewTarget(OldTarget);
-	PController->SetViewTargetWithBlend(this,0.2);
+	PController->SetViewTarget(OldTarget); //Set view target back to previous target
+	PController->SetViewTargetWithBlend(this,0.2); //Transition smoothly from previous target to current
 }
 
 void AMGP_2526Character::StartAim()
@@ -193,7 +195,7 @@ void AMGP_2526Character::StartAim()
 
 	USpringArmComponent* ActiveCam;
 
-	if(CharObj)
+	if(CharObj) //Aim as if object
 	{
 		ActiveCam = CharObj->CameraBoom;
 		CharObj->ObjMesh->SetVisibility(false);
@@ -202,7 +204,7 @@ void AMGP_2526Character::StartAim()
 		BaseSocketOffset = ActiveCam->SocketOffset;
 		ActiveCam->SocketOffset = FVector(0.f, 0.f, -30.f);
 	}
-	else
+	else //Aim as if player
 	{
 		ActiveCam = this->CameraBoom;
 		ActiveCam->SocketOffset = FVector(0.f, 0.f, 70.f);
@@ -210,6 +212,8 @@ void AMGP_2526Character::StartAim()
 		BaseSocketOffset = ActiveCam->SocketOffset;
 		GetMesh()->SetVisibility(false);
 		GetMesh()->SetHiddenInGame(true);
+
+		//Rotate player with camera as if in first person
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		bUseControllerRotationYaw = true;
 	}
@@ -227,28 +231,28 @@ void AMGP_2526Character::StopAim()
 
 	USpringArmComponent* ActiveCam;
 
-	if (CharObj)
+	if (CharObj) //Stop aiming as if object
 	{
 		ActiveCam = CharObj->CameraBoom;
 		CharObj->ObjMesh->SetVisibility(true);
 		CharObj->ObjMesh->SetHiddenInGame(false);
 	}
-	else
+	else //Stop aiming as if player
 	{
 		ActiveCam = this->CameraBoom;
 		GetMesh()->SetVisibility(true);
 		GetMesh()->SetHiddenInGame(false);
 	}
 
+	//Returns to third person camera defaults
 	ActiveCam->TargetArmLength = BaseArmLength;
 	ActiveCam->SocketOffset = BaseSocketOffset;
 
-	//GetMesh()->SetOwnerNoSee(false);
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
-void AMGP_2526Character::Possess()
+void AMGP_2526Character::Possess() //Start possessing the target
 {
 	UE_LOG(LogTemp, Warning, TEXT("Progress: %f"),PossessionProgress);
 	PossessionProgress++;
@@ -288,14 +292,16 @@ bool AMGP_2526Character::HasTarget(APlayerController* PController)
 	return true;
 }
 
+//Function to determine whether actor is object or nullptr which can be resolved to player
+//Doesn't do much on its own but made it just in case I needed to add something in the process
 APossessableObject* AMGP_2526Character::ObjOrPlr(AActor* Actor)
 {
 	APossessableObject* ObjActor = Cast<APossessableObject>(Actor); //Stores what object is being possessed
 	if (ObjActor)
 	{
-		return ObjActor;
+		return ObjActor; //Returns object
 	}
-	return nullptr;
+	return nullptr; //Returns null
 }
 
 void AMGP_2526Character::PossessResult()
@@ -303,9 +309,9 @@ void AMGP_2526Character::PossessResult()
 	if (PossessionProgress > MaxPossession) //Checks if possession progress met the goal or if it was cancelled
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
-		StopAim();
-		APossessableObject* ObjCandidate = Cast<APossessableObject>(CurrentTarget);
-		AMGP_2526Character* PlrCandidate = Cast<AMGP_2526Character>(CurrentTarget);
+		StopAim(); //Stop aiming, resetting the camera. Prevents certain issues.
+		APossessableObject* ObjCandidate = Cast<APossessableObject>(CurrentTarget); //Attempt to cast to APossessableObject
+		AMGP_2526Character* PlrCandidate = Cast<AMGP_2526Character>(CurrentTarget); //Attempt to cast to AMGP_2526Character
 
 		APlayerController* PController = Cast<APlayerController>(Controller);
 		if (PlrCandidate) //If is a player
@@ -316,6 +322,10 @@ void AMGP_2526Character::PossessResult()
 			}
 			else
 			{
+				/*Direct possession rather than SetViewTargetWithBlend used for objects
+				Makes more sense here, not duplicating code just another instance of Character.
+				Transition() is then called to recreate the same smoothing effect that transitioning to
+				an object has*/
 				PController->Possess(PlrCandidate); //New character, so ->Possess
 				PlrCandidate->Transition(PossessedObj);
 			}
@@ -324,7 +334,9 @@ void AMGP_2526Character::PossessResult()
 		else if (ObjCandidate) //If is a possessable object
 		{
 			PossessedObj = ObjCandidate;
-			PController->SetViewTargetWithBlend(ObjCandidate, 0.2);
+			/*Blend smoothly to Object rather than using ->Possess.
+			Retains possession controls without making objects pawns, which would require duplicating code*/
+			PController->SetViewTargetWithBlend(ObjCandidate, 0.2); 
 		}
 		else
 		{
