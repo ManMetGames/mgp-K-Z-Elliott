@@ -81,7 +81,7 @@ protected:
 	virtual void BeginPlay() override;
 
 protected:
-	float BaseArmLength;
+	float BaseArmLength = 400;
 	FVector BaseSocketOffset;
 
 	/** Called for movement input */
@@ -108,6 +108,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
 
+
 	/** Handles aim toggling **/
 	UFUNCTION()
 	void StartAim();
@@ -115,6 +116,8 @@ public:
 	void StopAim();
 
 	/** Handles possession mechanic **/
+	UFUNCTION()
+	void Transition(AActor* Value);
 	UFUNCTION()
 	void Possess();
 	UFUNCTION()

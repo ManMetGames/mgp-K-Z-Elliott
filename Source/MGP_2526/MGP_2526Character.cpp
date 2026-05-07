@@ -55,7 +55,9 @@ void AMGP_2526Character::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Tags.Add("Player"); //Mark player as player
 	Tags.Add("Possessable"); //Mark player as possessable
+
 	PossessedObj = this;
 }
 
@@ -171,6 +173,14 @@ void AMGP_2526Character::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void AMGP_2526Character::Transition(AActor* OldTarget)
+{
+	APlayerController* PController = Cast<APlayerController>(Controller);
+
+	PController->SetViewTarget(OldTarget);
+	PController->SetViewTargetWithBlend(this,0.2);
 }
 
 void AMGP_2526Character::StartAim()
@@ -294,10 +304,32 @@ void AMGP_2526Character::PossessResult()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Succeeded!"));
 		StopAim();
-		PossessedObj = ObjOrPlr(CurrentTarget); //Stores what object is being possessed
-		if (!PossessedObj) PossessedObj = this;
+		APossessableObject* ObjCandidate = Cast<APossessableObject>(CurrentTarget);
+		AMGP_2526Character* PlrCandidate = Cast<AMGP_2526Character>(CurrentTarget);
+
 		APlayerController* PController = Cast<APlayerController>(Controller);
-		PController->SetViewTargetWithBlend(PossessedObj, 0.2);
+		if (PlrCandidate) //If is a player
+		{
+			if (PlrCandidate == this) //If PlrCandidate is the current char, move camera rather than ->Possess
+			{
+				PController->SetViewTargetWithBlend(PlrCandidate, 0.2);
+			}
+			else
+			{
+				PController->Possess(PlrCandidate); //New character, so ->Possess
+				PlrCandidate->Transition(PossessedObj);
+			}
+			PossessedObj = this; //Set PossessedObj to this: If it's the current char, it's currently possessing this, if it's not then this is default anyways
+		}
+		else if (ObjCandidate) //If is a possessable object
+		{
+			PossessedObj = ObjCandidate;
+			PController->SetViewTargetWithBlend(ObjCandidate, 0.2);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid Target!"));
+		}
 		CurrentTarget = nullptr; //Resets what is currently being targetted
 	}
 	else
