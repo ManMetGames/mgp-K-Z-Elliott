@@ -200,7 +200,7 @@ void AMGP_2526Character::StartAim()
 		CharObj->ObjMesh->SetHiddenInGame(true);
 		BaseArmLength = ActiveCam->TargetArmLength;
 		BaseSocketOffset = ActiveCam->SocketOffset;
-		ActiveCam->SocketOffset = FVector(0.f, 0.f, -50.f);
+		ActiveCam->SocketOffset = FVector(0.f, 0.f, -30.f);
 	}
 	else
 	{
@@ -263,7 +263,7 @@ bool AMGP_2526Character::HasTarget(APlayerController* PController)
 
 	PController->GetPlayerViewPoint(CameraLocation, CameraRotation); //Sets CameraLocation and CameraRotation based on the player's camera
 	FVector Start = CameraLocation; //Start the line at the player's camera location
-	FVector End = Start + CameraRotation.Vector() * 10000.f; //Aim the line toward where the player is facing, with a distance of 10000
+	FVector End = Start + CameraRotation.Vector() * 1000.f; //Aim the line toward where the player is facing, with a distance of 10000
 
 	FHitResult Hit;
 	FCollisionQueryParams FilterList;
