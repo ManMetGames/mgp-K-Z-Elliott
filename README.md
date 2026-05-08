@@ -7,6 +7,11 @@ The Mechanic: Hybrid Possession
 This project implements a Hybrid Possession mechanic to traverse through a stage.
 It allows seamless possession between possessable objects and characters alike
 
+## How to set up:
+	1. Use Unreal Engine 5.6.1
+	2. Launch MGP_2526 from the mgp-K-Z-Elliott directory
+	3. Build the project before running, this ensures no bugs with input occur
+
 ## How do I use the mechanic?
 
 	1. **Right click**, transitioning into first person mode.
@@ -40,4 +45,4 @@ I have created a simple level to demonstrate the mechanic.
 
 
 Video Link:
-	TBD
+	https://www.youtube.com/watch?v=W82yofJlvhs
