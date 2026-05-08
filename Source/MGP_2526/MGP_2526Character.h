@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
+class APossessableObject;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -30,7 +31,17 @@ class AMGP_2526Character : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+public: //My variables
+	UPROPERTY()
+	float MaxPossession = 100; //Max progress in progress bar
+	UPROPERTY(EditAnywhere)
+	float PossessionProgress = 0;
+	UPROPERTY(EditAnywhere)
+	bool IsAiming = false;
+	UPROPERTY()
+	AActor* CurrentTarget;
+	UPROPERTY(EditAnywhere);
+	AActor* PossessedObj;
 protected:
 
 	/** Jump Input Action */
@@ -49,6 +60,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	/** Aim Input Action **/
+	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category="Input")
+	UInputAction* AimAction;
+
+	/** Possess Input Action **/
+	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category = "Input")
+	UInputAction* PossessAction;
+
 public:
 
 	/** Constructor */
@@ -59,7 +78,11 @@ protected:
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void BeginPlay() override;
+
 protected:
+	float BaseArmLength = 400;
+	FVector BaseSocketOffset;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -84,6 +107,25 @@ public:
 	/** Handles jump pressed inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
+
+
+	/** Handles aim toggling **/
+	UFUNCTION()
+	void StartAim();
+	UFUNCTION()
+	void StopAim();
+
+	/** Handles possession mechanic **/
+	UFUNCTION()
+	void Transition(AActor* Value);
+	UFUNCTION()
+	void Possess();
+	UFUNCTION()
+	void PossessResult();
+	UFUNCTION()
+	bool HasTarget(APlayerController* Value);
+	UFUNCTION()
+	APossessableObject* ObjOrPlr(AActor* Value);
 
 public:
 
